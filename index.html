@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('bg2.jpg'); /* Add your background image URL here */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .a-container {
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.678);
+            width: 380px;
+            text-align: center;
+        }
+
+        .logo1 {
+            position: absolute;
+            top: 50px;
+            right: 60px; /* Increased from 70px to 100px */
+            width: 90px;
+            height: auto;
+        }
+
+        .logo-text {
+            position: absolute;
+            top: 135px; /* Adjust this value to control the vertical position of the text */
+            right: 75px; /* Align this with the logo */
+            font-size: 25px;
+            color: white;
+            text-align: center;
+        }
+
+
+        .rotate {
+            animation: rotateLogo 5s linear infinite;
+        }
+
+        @keyframes rotateLogo {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .buttons button {
+            width: 150px;
+            padding: 15px;
+            border: 0.7px solid black;
+            background-color: #05a96a;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border-radius: 10px;
+            margin: 10px; /* Adjusted margin for spacing */
+        }
+
+        .buttons button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .buttons button:active {
+            background-color: #d0d0d0;
+            transform: scale(0.95);
+        }
+         .master-section2 {
+             
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .master-section {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .master-section h1 {
+            font-size: 27px;
+            margin-bottom: 10px;
+            margin-left: 20px;
+            margin-top: 30px;
+            color: rgb(248, 245, 245);
+        }
+
+        .master-section button {
+            width: 180px;
+            padding: 12px;
+            margin-left: 20px;
+            border: 0.7px solid black;
+            background-color: #05a96a;;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border-radius: 5px;
+        }
+
+        .master-section button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .master-section button:active {
+            background-color: #d0d0d0;
+            transform: scale(0.95);
+        }
+
+        .recording-status {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .passLogo, .failLogo {
+            display: none;
+            width: 150px;
+            height: auto;
+            margin: 20px auto; /* Center horizontally and add margin */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="recording-status">
+        <!-- Recording light or status indicator -->
+    </div>
+    <img src="logo1.png" alt="Logo" class="logo1" id="logo1">
+    <div class="logo-text" id="logo-text">Offline</div>
+    <!-- <div class="status-text" id="status-text">Offline</div> -->
+    <div class="a-container">
+    <h3>Current Freq.</h3>
+    <h1  class="master-section2" id='testf'>123</h1>
+        <img src="passLogo.png" alt="Pass" class="passLogo" id="pass-logo">
+        <img src="failLogo.png" alt="Fail" class="failLogo" id="fail-logo">
+        <div class="buttons">
+            <button id="record-master"><b>Start</b></button>
+            <button id="stop-test"><b>Stop</b></button>
+        </div>
+    </div>
+    <div class="master-section">
+        <h1 id="m" >Master Value</h1>
+        <button id="set-new-master"><b>Set New Master</b></button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.emit("msg","msg")
+        const startButton = document.getElementById('record-master');
+        const stopButton = document.getElementById('stop-test');
+        const logo = document.getElementById('logo1');
+        const passLogo = document.getElementById('pass-logo');
+        const failLogo = document.getElementById('fail-logo');
+        const logoText = document.getElementById('logo-text');
+        socket.on('chat message', (msg) => {
+        console.log("rec-",msg)
+        logo.classList.add('rotate');
+        document.getElementById('logo-text').innerHTML = 'Online';
+        // const item = document.createElement('li');
+        // item.textContent = msg;
+        const data = msg
+        const masterFrequencyMatch = data.match(/Master Frequency = ([0-9.]+) Hz/);
+
+        // get master data
+        if (masterFrequencyMatch && masterFrequencyMatch[1]) {
+        const masterFrequency = masterFrequencyMatch[1];
+        console.log(masterFrequency); // Output: 429.00
+        document.getElementById("m").innerHTML = "Master Value: " + masterFrequency + " Hz"
+        } else {
+        console.log('Master Frequency not found');
+        }
+        // get test data
+        const testFrequencyMatch = data.match(/Test Frequency = ([0-9.]+) Hz/);
+
+        if (testFrequencyMatch && testFrequencyMatch[1]) {
+        const testFrequency = testFrequencyMatch[1];
+        document.getElementById('testf').innerHTML = testFrequency + " Hz";
+        console.log(testFrequency); // Output: 5000.00
+        } else {
+        console.log('Test Frequency not found');
+        }
+        // check Match or Mismatch
+        if (data.includes("Mismatched")) {
+        console.log("String contains 'Mismatched'");
+        showResultLogo(false);
+        } else if(data.includes("Matched")) {
+        console.log("String does not contain 'Mismatched'");
+        showResultLogo(true);
+        }
+        else{
+
+        }
+    });
+    function showResultLogo(isPass) {
+           
+            passLogo.style.display = 'none';
+            failLogo.style.display = 'none';
+            const logoToShow = isPass ? passLogo : failLogo;
+            logoToShow.style.display = 'block';
+               
+            setTimeout(() => {
+                logoToShow.style.display = 'none';
+            }, isPass ? 5000 : 3000);
+        }
+
+        startButton.addEventListener('click', () => {
+            logo.classList.add('rotate');
+            // statusText.textContent = 'Online';
+            logoText.textContent = 'Online';
+            // Simulate comparison result for demonstration purposes
+            const comparisonResult = Math.random() > 0.5; // Replace with actual comparison logic
+            showResultLogo(comparisonResult);
+            socket.emit('starttest', 'compare');
+            disableButtons();
+        });
+
+        stopButton.addEventListener('click', () => {
+            logo.classList.remove('rotate');
+            // statusText.textContent = 'Offline';
+            logoText.textContent = 'Offline';
+            socket.emit('stoptest', 'stop all');
+            disableButtons();
+        });
+
+        const setNewMasterButton = document.getElementById('set-new-master');
+
+        setNewMasterButton.addEventListener('click', () => {// Navigate to your login page
+    window.location.href = 'Login.html'; // Replace 'login.html' with your actual login page URL
+    disableButtons();
+
+   
+});
+
+function disableButtons() {
+            startButton.disabled = true;
+            stopButton.disabled = true;
+            setNewMasterButton.disabled = true;
+            setTimeout(() => {
+                startButton.disabled = false;
+                stopButton.disabled = false;
+                setNewMasterButton.disabled = false;
+            }, 15000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "your-application-name",
+  "version": "1.0.0",
+  "main": "jsapp.js",
+  "bin": {
+    "jsappl": "./jsapp.js"
+  },
+  "scripts": {
+    "start": "node jsapp.js"
+  },
+  "dependencies": {
+    "14": "^3.1.6",
+    "electron": "^31.2.1",
+    "express": "^4.19.2",
+    "net": "^1.0.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  }
+}
